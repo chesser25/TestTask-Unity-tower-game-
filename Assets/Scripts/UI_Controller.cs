@@ -7,7 +7,7 @@ namespace TowerGame
 	public class UI_Controller : MonoBehaviour 
 	{
 		private GameManager gameManager;
-		public UnityEngine.EventSystems.EventSystem _eventSystem;
+		public UnityEngine.EventSystems.EventSystem eventSystem;
 
 		void Awake ()
 		{
@@ -24,7 +24,7 @@ namespace TowerGame
 
 		void SendInstances ()
 		{
-			gameManager._UI_Controller = this;
+			gameManager.UI_Controller = this;
 		}
 	}
 }

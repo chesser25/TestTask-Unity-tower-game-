@@ -8,24 +8,30 @@ namespace TowerGame
 	{
 		public TowerBuildMenu towerBuildMenu;
 
-		void Update()
+		public static GameObject currentSlot; 
+
+		private float slotHeight;
+
+		public float SlotHeight
 		{
-			RaycastHit  hit;
-        	Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-			if (Physics.Raycast(ray, out hit)) 
+			get
 			{
-                if (hit.transform.gameObject.tag == "TowerSlot" )
-				{
-					ShowTowerBuildMenu();
-				}
-			}         
+				return slotHeight;
+			}
 		}
 
-		void ShowTowerBuildMenu()
+		void Awake()
+		{
+			var collider = GetComponent<Collider>();
+			slotHeight = collider.bounds.size.y;
+		}
+
+		void OnMouseDown()
 		{
 			if(towerBuildMenu.IsOpened)
 				return;
+			currentSlot = gameObject;
 			towerBuildMenu.ShowMenu();
-		}
+  		}   
 	}
 }

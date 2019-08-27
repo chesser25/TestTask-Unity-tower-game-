@@ -6,6 +6,7 @@ namespace TowerGame
 {
 	public class TowerBuildMenu : MonoBehaviour 
 	{
+		public GameManager gameManager; 
 		private bool isOpened;
 
 		void Start()
@@ -37,7 +38,8 @@ namespace TowerGame
 
 		public void BuyTower()
 		{
-			
+			string towerType = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.tag;
+			gameManager.BuyTower(towerType);
 		}
 	}
 }
