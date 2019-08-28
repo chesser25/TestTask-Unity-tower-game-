@@ -22,10 +22,12 @@ namespace TowerGame
 		public Dictionary<TowerTypes, GameObject> towers;
 
 		[Header ("Prefabs")]
-		public GameObject RocketLauncherTowerPrefab;
-		public GameObject LightGunTowerPrefab;
-		public GameObject FlameTowerPrefab;
-		public GameObject HouseTowerPrefab;
+		public GameObject rocketLauncherTowerPrefab;
+		public GameObject lightGunTowerPrefab;
+		public GameObject flameTowerPrefab;
+		public GameObject houseTowerPrefab;
+
+		public GameObject enemyPrefab;
 
 		void Awake()
 		{
@@ -45,10 +47,10 @@ namespace TowerGame
 
 			towers = new Dictionary<TowerTypes, GameObject>
 			{
-				{ TowerTypes.FlameTower, FlameTowerPrefab},
-				{ TowerTypes.HouseTower, HouseTowerPrefab },
-				{ TowerTypes.LightGunTower, LightGunTowerPrefab },
-				{ TowerTypes.RocketLauncherTower, RocketLauncherTowerPrefab }
+				{ TowerTypes.FlameTower, flameTowerPrefab},
+				{ TowerTypes.HouseTower, houseTowerPrefab },
+				{ TowerTypes.LightGunTower, lightGunTowerPrefab },
+				{ TowerTypes.RocketLauncherTower, rocketLauncherTowerPrefab }
 			};
 		}
 
