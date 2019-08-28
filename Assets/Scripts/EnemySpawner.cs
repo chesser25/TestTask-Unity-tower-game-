@@ -17,22 +17,18 @@ public class EnemySpawner : MonoBehaviour
 		}
 	}
 
-	public GameObject enemyPrefab;
 	public int waveDuration = 20; // In seconds
-	public int enemiesCountPerWave = 20;
-	private void CreateEnemies()
+	public int enemiesCountPerWave = 1;
+	public int wavesCount = 0;
+	public int maxWaveCount = 100;
+	public void CreateEnemies(GameObject enemyPrefab, Transform [] wayPoints)
 	{
+		wavesCount++;
 		for(int i = 0; i < enemiesCountPerWave; i++)
 		{
-			GameObject enemy = Instantiate(enemyPrefab, Vector3.zero, enemyPrefab.transform.rotation);
+			GameObject enemy = Instantiate(enemyPrefab, wayPoints[0].position, enemyPrefab.transform.rotation);
 		}
 	}
-
-	private void MoveEnemy()
-	{
-
-	}
-
 	private bool isWaveDurationExpired()
 	{
 		return false;

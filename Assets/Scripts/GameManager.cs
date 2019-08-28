@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
+using UnityEngine.UI;
 
 namespace TowerGame
 {
@@ -13,14 +14,6 @@ namespace TowerGame
 			public float Z_Min;
 			public float Z_Max;
 
-		private UnityEngine.EventSystems.EventSystem eventSystem;
-		[HideInInspector] public UI_Controller UI_Controller;
-		public enum TowerTypes {FlameTower, HouseTower, LightGunTower, RocketLauncherTower };
-		public int playerMoney = 100;
-
-		private Dictionary<TowerTypes, int> towerPrices;
-		public Dictionary<TowerTypes, GameObject> towers;
-
 		[Header ("Prefabs")]
 		public GameObject rocketLauncherTowerPrefab;
 		public GameObject lightGunTowerPrefab;
@@ -29,14 +22,19 @@ namespace TowerGame
 
 		public GameObject enemyPrefab;
 
-		void Awake()
-		{
-			//Terrain.activeTerrain.terrainData.SetHeights((int) 0, (int) 0, new float [100,100]);
-		}
-
+		
+		public Transform[] wayPoints;
+		private UnityEngine.EventSystems.EventSystem eventSystem;
+		[HideInInspector] public UI_Controller UI_Controller;
+		public enum TowerTypes {FlameTower, HouseTower, LightGunTower, RocketLauncherTower };
+		public Dictionary<TowerTypes, int> towerPrices;
+		public Dictionary<TowerTypes, GameObject> towers;
+		public int playerMoney = 100;
+		public int playerHealth = 100;
 		void Start()
 		{
 			eventSystem = UI_Controller.eventSystem;
+			// Initialize towers prices
 			towerPrices = new Dictionary<TowerTypes, int>
 			{
 				{ TowerTypes.FlameTower, 10 },
@@ -45,6 +43,7 @@ namespace TowerGame
 				{ TowerTypes.RocketLauncherTower, 40 }
 			};
 
+			// Towers prefabs
 			towers = new Dictionary<TowerTypes, GameObject>
 			{
 				{ TowerTypes.FlameTower, flameTowerPrefab},
@@ -52,6 +51,7 @@ namespace TowerGame
 				{ TowerTypes.LightGunTower, lightGunTowerPrefab },
 				{ TowerTypes.RocketLauncherTower, rocketLauncherTowerPrefab }
 			};
+			StartCoroutine(SpawnEnemies());
 		}
 
 		void Update()
@@ -72,15 +72,6 @@ namespace TowerGame
 				Camera.main.transform.position.y,
  				Mathf.Clamp (Camera.main.transform.position.z, Z_Min, Z_Max)); 
 		}
-
-		// void OnRectTransformDimensionsChange()
-        //  {
-        //     Camera.main.transform.position = new Vector3 (
-		// 		Mathf.Clamp (Camera.main.transform.position.x, X_Min, X_Max),
-		// 		Camera.main.transform.position.y,
- 		// 		Mathf.Clamp (Camera.main.transform.position.z, Z_Min, Z_Max)); 
-        //  }
-
 
 		 public void BuyTower(string tower)
 		 {
@@ -122,6 +113,13 @@ namespace TowerGame
 			 Vector3 slotPosition = TowerSlot.currentSlot.transform.position;
 			 GameObject tower = Instantiate(towers[towerType], new Vector3 (slotPosition.x, slotPosition.y + TowerSlot.currentSlot.GetComponent<TowerSlot>().SlotHeight, slotPosition.z ), towers[towerType].transform.rotation);
 			 tower.transform.SetParent(TowerSlot.currentSlot.transform);
+
+		 }
+
+		 private IEnumerator SpawnEnemies()
+		 {
+			 EnemySpawner.Instance.CreateEnemies(enemyPrefab, wayPoints);
+			 yield return new WaitForSeconds(60f);
 		 }
 	}
 }
