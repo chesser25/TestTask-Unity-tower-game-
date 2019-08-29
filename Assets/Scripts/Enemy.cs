@@ -10,39 +10,52 @@ namespace TowerGame
 		public int speed;
 		public int damage;
 
-		public GameManager gameManager;
+		private GameManager gameManager;
+		private Transform currentWaypoint;
+		private Transform[] wayPoints;
 		private int wayPointIndex;
 
-		void Awake()
+		void Start()
 		{
-			wayPointIndex = 0;
+			gameManager = GameObject.FindObjectOfType<GameManager> ();
+			wayPointIndex = 1;
+			wayPoints = gameManager.wayPoints;
+			currentWaypoint = wayPoints [wayPointIndex];
 		}
 
 		private void Move() 
 		{
-			transform.position += transform.up * Time.deltaTime * speed;
-
-			if ((gameManager.wayPoints.Length - 1) > wayPointIndex)
+			Quaternion targetRotation = Quaternion.LookRotation (currentWaypoint.position - transform.position, transform.up);
+			transform.rotation = Quaternion.RotateTowards (transform.rotation, targetRotation, Time.deltaTime * 100);
+			transform.position += transform.forward * Time.deltaTime * speed;
+			float distance = Vector3.Distance (transform.position, currentWaypoint.position);
+			if ( distance < 2f)
 			{
-				wayPointIndex += 1;
+				if ((wayPoints.Length - 1) > wayPointIndex)
+				{
+					NextWayPoint();
+				}
+				else
+				{
+					Die();
+				}
 			}
-			// if (Vector3.Distance (transform.position, gameManager.wayPoints[wayPointIndex].position) < 2f) 
-			// {
-			// 	if ((gameManager.wayPoints.Length - 1) > wayPointIndex)
-			// 	{
-			// 		wayPointIndex += 1;
-			// 	}
-			// 	else 
-			// 	{
-			// 		//gameManager.DamageBase ();
-			// 		//Deactivating ();
-			// 	}
-			// }
 		}
 
 		void Update() 
 		{
 			Move();
+		}
+
+		void NextWayPoint()
+		{
+			wayPointIndex += 1;
+			currentWaypoint = wayPoints [wayPointIndex];
+		}
+
+		void Die()
+		{
+			Destroy (gameObject);
 		}
 	}
 }

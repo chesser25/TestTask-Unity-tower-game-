@@ -1,16 +1,15 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace TowerGame
 {
 	public class TowerBuildMenu : MonoBehaviour 
 	{
-		public GameManager gameManager; 
+		private GameManager gameManager; 
 		private bool isOpened;
 
 		void Start()
 		{
+			gameManager = GameObject.FindObjectOfType<GameManager> ();
 			isOpened = false;
 		}
 
@@ -38,6 +37,7 @@ namespace TowerGame
 
 		public void BuyTower()
 		{
+			Debug.Log("buying");
 			string towerType = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.tag;
 			gameManager.BuyTower(towerType);
 		}

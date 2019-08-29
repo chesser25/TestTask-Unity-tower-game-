@@ -51,7 +51,7 @@ namespace TowerGame
 				{ TowerTypes.LightGunTower, lightGunTowerPrefab },
 				{ TowerTypes.RocketLauncherTower, rocketLauncherTowerPrefab }
 			};
-			StartCoroutine(SpawnEnemies());
+			EnemySpawner.Instance.CreateEnemies(enemyPrefab, wayPoints);
 		}
 
 		void Update()
@@ -114,12 +114,6 @@ namespace TowerGame
 			 GameObject tower = Instantiate(towers[towerType], new Vector3 (slotPosition.x, slotPosition.y + TowerSlot.currentSlot.GetComponent<TowerSlot>().SlotHeight, slotPosition.z ), towers[towerType].transform.rotation);
 			 tower.transform.SetParent(TowerSlot.currentSlot.transform);
 
-		 }
-
-		 private IEnumerator SpawnEnemies()
-		 {
-			 EnemySpawner.Instance.CreateEnemies(enemyPrefab, wayPoints);
-			 yield return new WaitForSeconds(60f);
 		 }
 	}
 }
