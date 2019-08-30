@@ -37,7 +37,6 @@ namespace TowerGame
 
 		public void BuyTower()
 		{
-			Debug.Log("buying");
 			string towerType = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.tag;
 			gameManager.BuyTower(towerType);
 		}

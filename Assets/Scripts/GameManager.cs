@@ -110,10 +110,11 @@ namespace TowerGame
 
 		 private void CreateTower(TowerTypes towerType)
 		 {
+			 Debug.Log(TowerSlot.currentSlot.GetComponent<TowerSlot>().SlotHeight);
 			 Vector3 slotPosition = TowerSlot.currentSlot.transform.position;
+			 Debug.Log(slotPosition.y);
 			 GameObject tower = Instantiate(towers[towerType], new Vector3 (slotPosition.x, slotPosition.y + TowerSlot.currentSlot.GetComponent<TowerSlot>().SlotHeight, slotPosition.z ), towers[towerType].transform.rotation);
 			 tower.transform.SetParent(TowerSlot.currentSlot.transform);
-
 		 }
 	}
 }
