@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace TowerGame
@@ -18,18 +16,20 @@ namespace TowerGame
 		public Text rocketLauncherTowerCost;
 		public GameManager gameManager;
 		public UnityEngine.EventSystems.EventSystem eventSystem;
+		private EnemySpawner enemySpawner;
 
 		void Awake ()
 		{
 			gameManager.UI_Controller = this;
+			enemySpawner = GameObject.FindGameObjectWithTag("EnemySpawner").GetComponent<EnemySpawner>();
 		}
 
 		void Start()
 		{
 			var towerPrices = gameManager.towerPrices;
 			// Set UI text values
-			waveCountText.text = "Current wave: " + EnemySpawner.Instance.wavesCount;
-			maxWaveCountText.text = "Max wave count: " + EnemySpawner.Instance.maxWaveCount;
+			waveCountText.text = "Current wave: " + enemySpawner.WavesCount;
+			maxWaveCountText.text = "Max wave count: " + enemySpawner.MaxWavesCount;
 			healthText.text = "Health: " + gameManager.playerHealth;
 			playerCoinsText.text = "Coins: " + gameManager.playerMoney;
 			houseTowerCost.text = towerPrices[GameManager.TowerTypes.HouseTower].ToString();

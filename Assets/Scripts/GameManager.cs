@@ -20,10 +20,6 @@ namespace TowerGame
 		public GameObject flameTowerPrefab;
 		public GameObject houseTowerPrefab;
 
-		public GameObject enemyPrefab;
-
-		
-		public Transform[] wayPoints;
 		private UnityEngine.EventSystems.EventSystem eventSystem;
 		[HideInInspector] public UI_Controller UI_Controller;
 		public enum TowerTypes {FlameTower, HouseTower, LightGunTower, RocketLauncherTower };
@@ -31,6 +27,8 @@ namespace TowerGame
 		public Dictionary<TowerTypes, GameObject> towers;
 		public int playerMoney = 100;
 		public int playerHealth = 100;
+		public Transform[] wayPoints;
+
 		void Start()
 		{
 			eventSystem = UI_Controller.eventSystem;
@@ -51,7 +49,6 @@ namespace TowerGame
 				{ TowerTypes.LightGunTower, lightGunTowerPrefab },
 				{ TowerTypes.RocketLauncherTower, rocketLauncherTowerPrefab }
 			};
-			EnemySpawner.Instance.CreateEnemies(enemyPrefab, wayPoints);
 		}
 
 		void Update()
@@ -110,9 +107,7 @@ namespace TowerGame
 
 		 private void CreateTower(TowerTypes towerType)
 		 {
-			 Debug.Log(TowerSlot.currentSlot.GetComponent<TowerSlot>().SlotHeight);
 			 Vector3 slotPosition = TowerSlot.currentSlot.transform.position;
-			 Debug.Log(slotPosition.y);
 			 GameObject tower = Instantiate(towers[towerType], new Vector3 (slotPosition.x, slotPosition.y + TowerSlot.currentSlot.GetComponent<TowerSlot>().SlotHeight, slotPosition.z ), towers[towerType].transform.rotation);
 			 tower.transform.SetParent(TowerSlot.currentSlot.transform);
 		 }

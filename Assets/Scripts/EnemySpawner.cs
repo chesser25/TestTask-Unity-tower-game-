@@ -1,44 +1,53 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
 {
-	// Singleton
-	private EnemySpawner() {}
-	private static EnemySpawner instance = null;
-	public static EnemySpawner Instance
+	private int wavesCount = 1;
+	private int maxWaveCount;
+	private int waitTimeBetweenEnemySpawns;
+	public Wave[] waves;
+
+	private IEnumerator coroutine;
+
+	void Awake()
 	{
-		get
+		maxWaveCount = waves.Length;
+	}
+	void Start()
+	{
+		for(int i = 0; i < waves.Length; i++)
 		{
-			if(instance == null)
-				instance = new EnemySpawner();
-			return instance;
+			Wave currentWave = waves[i];
+			waitTimeBetweenEnemySpawns = (int) (currentWave.waveDuration / currentWave.enemiesCountPerWave);
+			wavesCount++;
+			coroutine = CreateEnemies(currentWave);
+			StartCoroutine(coroutine);
 		}
 	}
 
-	public int waitTimeToSpawn = 0.0f;
-	public int waveDuration = 30; // In seconds
-	public int enemiesCountPerWave = 1;
-	public int wavesCount = 0;
-	public int maxWaveCount = 100;
-	public GameObject enemyPrefab;
-	public Transform [] wayPoints;
-
-	public void CreateEnemies()
+	IEnumerator CreateEnemies(Wave currentWave)
 	{
-		if(wavesCount == maxWaveCount)
-			return;
-		wavesCount++;
-		InvokeRepeating("Create", waitTimeToSpawn, 0.3F);
+		for(int i = 0; i < currentWave.enemiesCountPerWave; i++)
+		{
+			GameObject enemy = Instantiate(currentWave.enemyPrefab, currentWave.spawnPosition, currentWave.enemyPrefab.transform.rotation);
+			yield return new WaitForSeconds(waitTimeBetweenEnemySpawns);
+		}
 	}
 
-	private void Create()
+	public int WavesCount
 	{
-		for(int i = 0; i < enemiesCountPerWave; i++)
+		get
 		{
-			GameObject enemy = Instantiate(enemyPrefab, wayPoints[0].position, enemyPrefab.transform.rotation);
-			yield return new WaitForSeconds();
+			return wavesCount;
+		}
+	}
+
+	public int MaxWavesCount
+	{
+		get
+		{
+			return maxWaveCount;
 		}
 	}
 }
