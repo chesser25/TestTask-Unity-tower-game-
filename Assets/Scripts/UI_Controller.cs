@@ -14,28 +14,46 @@ namespace TowerGame
 		public Text flameTowerCost;
 		public Text lightGunTowerCost;
 		public Text rocketLauncherTowerCost;
-		public GameManager gameManager;
 		public UnityEngine.EventSystems.EventSystem eventSystem;
-		private EnemySpawner enemySpawner;
 
-		void Awake ()
+		public void SetHealthText(int playerHealth)
 		{
-			gameManager.UI_Controller = this;
-			enemySpawner = GameObject.FindGameObjectWithTag("EnemySpawner").GetComponent<EnemySpawner>();
+			healthText.text = "Health: " + playerHealth;
 		}
 
-		void Start()
+		public void SetWaveCountText(int waveCount)
 		{
-			var towerPrices = gameManager.towerPrices;
-			// Set UI text values
-			waveCountText.text = "Current wave: " + enemySpawner.WavesCount;
-			maxWaveCountText.text = "Max wave count: " + enemySpawner.MaxWavesCount;
-			healthText.text = "Health: " + gameManager.playerHealth;
-			playerCoinsText.text = "Coins: " + gameManager.playerMoney;
-			houseTowerCost.text = towerPrices[GameManager.TowerTypes.HouseTower].ToString();
-			flameTowerCost.text = towerPrices[GameManager.TowerTypes.FlameTower].ToString();
-			lightGunTowerCost.text = towerPrices[GameManager.TowerTypes.LightGunTower].ToString();
-			rocketLauncherTowerCost.text = towerPrices[GameManager.TowerTypes.RocketLauncherTower].ToString();
+			waveCountText.text = "Current wave: " + waveCount;
+		}
+
+		public void SetMaxWaveCountText(int maxWaveCount)
+		{
+			waveCountText.text = "Max wave count: " + maxWaveCount;
+		}
+
+		public void SetPlayerCoinsText(int playerCoins)
+		{
+			playerCoinsText.text = "Coins: " + playerCoins + "$";
+		}
+
+		public void SetHouseTowerPriceText(int price)
+		{
+			houseTowerCost.text = price.ToString();
+		}
+
+		public void SetFlameTowerPriceText(int price)
+		{
+			flameTowerCost.text = price.ToString();
+		}
+
+		public void SetLightGunTowerPriceText(int price)
+		{
+			lightGunTowerCost.text = price.ToString();
+		}
+		
+		public void SetRocketLauncherTowerPriceText(int price)
+		{
+			rocketLauncherTowerCost.text = price.ToString();
 		}
 	}
 }

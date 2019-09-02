@@ -15,10 +15,13 @@ namespace TowerGame
 		private Transform[] wayPoints;
 		private int wayPointIndex;
 
+		void Awake()
+		{
+			wayPointIndex = 1;
+		}
 		void Start()
 		{
 			gameManager = GameObject.FindObjectOfType<GameManager> ();
-			wayPointIndex = 1;
 			wayPoints = gameManager.wayPoints;
 			currentWaypoint = wayPoints [wayPointIndex];
 		}
@@ -39,6 +42,16 @@ namespace TowerGame
 				{
 					Die();
 				}
+			}
+		}
+
+		private void OnCollisionEnter(Collision other)
+		{
+			Debug.Log(other.gameObject.name);
+			Tower tower = other.gameObject.GetComponent<Tower>();
+			if (tower != null)
+			{
+				gameManager.Damage(damage);
 			}
 		}
 
