@@ -15,6 +15,8 @@ namespace TowerGame
 		private Transform[] wayPoints;
 		private int wayPointIndex;
 
+		private EnemySpawner enemySpawner;
+
 		void Awake()
 		{
 			wayPointIndex = 1;
@@ -68,7 +70,20 @@ namespace TowerGame
 
 		void Die()
 		{
+			EnemySpawner.SpawnedEnemies.Remove(this.gameObject);
 			Destroy (gameObject);
+		}
+
+		public EnemySpawner EnemySpawner
+		{
+			private get
+			{
+				return enemySpawner;
+			}
+			set
+			{
+				enemySpawner = value;
+			}
 		}
 	}
 }

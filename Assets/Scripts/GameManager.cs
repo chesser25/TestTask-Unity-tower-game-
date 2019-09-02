@@ -1,15 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 namespace TowerGame
 {
 	public class GameManager : MonoBehaviour
 	{
-		//public enum TowerTypes {FlameTower, HouseTower, LightGunTower, RocketLauncherTower };
+		public enum TowerTypes {FlameTower, HouseTower, LightGunTower, RocketLauncherTower };
 
 		[Header ("Camera boundaries")]
 			public float X_Min;
@@ -17,44 +15,47 @@ namespace TowerGame
 			public float Z_Min;
 			public float Z_Max;
 
-		// [Header ("Prefabs")]
-		// public GameObject rocketLauncherTowerPrefab;
-		// public GameObject lightGunTowerPrefab;
-		// public GameObject flameTowerPrefab;
-		// public GameObject houseTowerPrefab;
+		[Header ("Prefabs")]
+		public GameObject rocketLauncherTowerPrefab;
+		public GameObject lightGunTowerPrefab;
+		public GameObject flameTowerPrefab;
+		public GameObject houseTowerPrefab;
 
-		//public Transform[] wayPoints;
+		public Transform[] wayPoints;
 
 		private EventSystem eventSystem;
 		private UI_Controller viewController;
 		private EnemySpawner enemySpawner;
 
 		// Variables
-		// private Dictionary<TowerTypes, int> towerPrices;
-		// private Dictionary<TowerTypes, GameObject> towers;
+		private Dictionary<TowerTypes, int> towerPrices;
+		private Dictionary<TowerTypes, GameObject> towers;
 		private int playerMoney = 100;
 		private int playerHealth = 100;
 
-		// void Awake()
-		// {
-		// 	// Initialize towers prices
-		// 	towerPrices = new Dictionary<TowerTypes, int>
-		// 	{
-		// 		{ TowerTypes.FlameTower, 10 },
-		// 		{ TowerTypes.HouseTower, 20 },
-		// 		{ TowerTypes.LightGunTower, 30 },
-		// 		{ TowerTypes.RocketLauncherTower, 40 }
-		// 	};
+		private List<GameObject> spawnedTowers;
 
-		// 	// Towers prefabs
-		// 	towers = new Dictionary<TowerTypes, GameObject>
-		// 	{
-		// 		{ TowerTypes.FlameTower, flameTowerPrefab},
-		// 		{ TowerTypes.HouseTower, houseTowerPrefab },
-		// 		{ TowerTypes.LightGunTower, lightGunTowerPrefab },
-		// 		{ TowerTypes.RocketLauncherTower, rocketLauncherTowerPrefab }
-		// 	};
-		// }
+		void Awake()
+		{
+			// Initialize towers prices
+			towerPrices = new Dictionary<TowerTypes, int>
+			{
+				{ TowerTypes.FlameTower, 10 },
+				{ TowerTypes.HouseTower, 20 },
+				{ TowerTypes.LightGunTower, 30 },
+				{ TowerTypes.RocketLauncherTower, 40 }
+			};
+
+			// Towers prefabs
+			towers = new Dictionary<TowerTypes, GameObject>
+			{
+				{ TowerTypes.FlameTower, flameTowerPrefab},
+				{ TowerTypes.HouseTower, houseTowerPrefab },
+				{ TowerTypes.LightGunTower, lightGunTowerPrefab },
+				{ TowerTypes.RocketLauncherTower, rocketLauncherTowerPrefab }
+			};
+			spawnedTowers = new List<GameObject>();
+		}
 
 		void Start()
 		{
@@ -79,6 +80,7 @@ namespace TowerGame
 		void Update()
 		{
 			DoNavigation ();
+			SetEnemiesForEachTower(enemySpawner.SpawnedEnemies);
 		}
 
 		void DoNavigation ()
@@ -95,30 +97,30 @@ namespace TowerGame
  				Mathf.Clamp (Camera.main.transform.position.z, Z_Min, Z_Max)); 
 		}
 
-		//  public void BuyTower(string tower)
-		//  {
-		// 	 TowerTypes towerType = (TowerTypes) Enum.Parse(typeof(TowerTypes), tower);
-		// 	 int towerCost = 0;
-		// 	 switch (towerType)
-		// 	 {
-		// 		 case TowerTypes.FlameTower:
-		// 		 	towerCost = towerPrices[TowerTypes.FlameTower];
-		// 			break;
-		// 		case TowerTypes.HouseTower:
-		// 		 	towerCost = towerPrices[TowerTypes.HouseTower];
-		// 			break;
-		// 		case TowerTypes.LightGunTower:
-		// 		 	towerCost = towerPrices[TowerTypes.LightGunTower];
-		// 			break;
-		// 		case TowerTypes.RocketLauncherTower:
-		// 		 	towerCost = towerPrices[TowerTypes.RocketLauncherTower];
-		// 			break;
-		// 	 }
-		// 	 if ( playerMoney < towerCost)
-		// 	 	return;
-		// 	 DecreaseMoney(towerCost);
-		// 	 CreateTower(towerType);
-		//  }
+		 public void BuyTower(string tower)
+		 {
+			 TowerTypes towerType = (TowerTypes) Enum.Parse(typeof(TowerTypes), tower);
+			 int towerCost = 0;
+			 switch (towerType)
+			 {
+				 case TowerTypes.FlameTower:
+				 	towerCost = towerPrices[TowerTypes.FlameTower];
+					break;
+				case TowerTypes.HouseTower:
+				 	towerCost = towerPrices[TowerTypes.HouseTower];
+					break;
+				case TowerTypes.LightGunTower:
+				 	towerCost = towerPrices[TowerTypes.LightGunTower];
+					break;
+				case TowerTypes.RocketLauncherTower:
+				 	towerCost = towerPrices[TowerTypes.RocketLauncherTower];
+					break;
+			 }
+			 if ( playerMoney < towerCost)
+			 	return;
+			 DecreaseMoney(towerCost);
+			 CreateTower(towerType);
+		 }
 
 		 void AddMoney(int amount)
 		 {
@@ -132,12 +134,13 @@ namespace TowerGame
 			 viewController.SetPlayerCoinsText(playerMoney);
 		 }
 
-		//  private void CreateTower(TowerTypes towerType)
-		//  {
-		// 	 Vector3 slotPosition = TowerSlot.currentSlot.transform.position;
-		// 	 GameObject tower = Instantiate(towers[towerType], new Vector3 (slotPosition.x, slotPosition.y + TowerSlot.currentSlot.GetComponent<TowerSlot>().SlotHeight, slotPosition.z ), towers[towerType].transform.rotation);
-		// 	 tower.transform.SetParent(TowerSlot.currentSlot.transform);
-		//  }
+		 private void CreateTower(TowerTypes towerType)
+		 {
+			 Vector3 slotPosition = TowerSlot.currentSlot.transform.position;
+			 GameObject tower = Instantiate(towers[towerType], new Vector3 (slotPosition.x, slotPosition.y + TowerSlot.currentSlot.GetComponent<TowerSlot>().SlotHeight, slotPosition.z ), towers[towerType].transform.rotation);
+			 tower.transform.SetParent(TowerSlot.currentSlot.transform);
+			 spawnedTowers.Add(tower);
+		 }
 
 		 public void Damage(int damage)
 		 {
@@ -148,6 +151,14 @@ namespace TowerGame
 		 public bool IsTowerPurchasePossible(int towerPrice)
 		 {
 			 return playerMoney >= towerPrice;
+		 }
+
+		 private void SetEnemiesForEachTower(List<GameObject> enemies)
+		 {
+			 foreach (GameObject tower in spawnedTowers)
+			 {
+				 tower.GetComponent<Tower>().SetEnemies(enemies);
+			 }
 		 }
 	}
 }

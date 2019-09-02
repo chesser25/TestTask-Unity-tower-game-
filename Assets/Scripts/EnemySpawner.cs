@@ -1,64 +1,69 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
-public class EnemySpawner : MonoBehaviour
+namespace TowerGame
 {
-	private int wavesCount;
-	private int maxWaveCount;
-	private int waitTimeBetweenEnemySpawns;
-	public Wave[] waves;
-	private IEnumerator coroutine;
-	private List<GameObject> spawnedEnemies;
+	public class EnemySpawner : MonoBehaviour
+	{
+		private int wavesCount;
+		private int maxWaveCount;
+		private int waitTimeBetweenEnemySpawns;
+		public Wave[] waves;
+		private IEnumerator coroutine;
+		private List<GameObject> spawnedEnemies;
 
-	void Awake()
-	{
-		wavesCount = 1;
-		maxWaveCount = waves.Length;
-		spawnedEnemies = new List<GameObject>();
-	}
-	void Start()
-	{
-		for(int i = 0; i < waves.Length; i++)
+		void Awake()
 		{
-			wavesCount++;
-			Wave currentWave = waves[i];
-			waitTimeBetweenEnemySpawns = (int) (currentWave.waveDuration / currentWave.enemiesCountPerWave);
-			coroutine = CreateEnemies(currentWave);
-			StartCoroutine(coroutine);
+			wavesCount = 1;
+			maxWaveCount = waves.Length;
+			spawnedEnemies = new List<GameObject>();
 		}
-	}
-
-	IEnumerator CreateEnemies(Wave currentWave)
-	{
-		for(int i = 0; i < currentWave.enemiesCountPerWave; i++)
+		void Start()
 		{
-			GameObject enemy = Instantiate(currentWave.enemyPrefab, currentWave.spawnPosition, currentWave.enemyPrefab.transform.rotation);
-			spawnedEnemies.Add(enemy);
-			yield return new WaitForSeconds(waitTimeBetweenEnemySpawns);
+			for(int i = 0; i < waves.Length; i++)
+			{
+				wavesCount++;
+				Wave currentWave = waves[i];
+				waitTimeBetweenEnemySpawns = (int) (currentWave.waveDuration / currentWave.enemiesCountPerWave);
+				coroutine = CreateEnemies(currentWave);
+				StartCoroutine(coroutine);
+			}
 		}
-	}
 
-	public int WavesCount
-	{
-		get
+		IEnumerator CreateEnemies(Wave currentWave)
 		{
-			return wavesCount;
+			for(int i = 0; i < currentWave.enemiesCountPerWave; i++)
+			{
+				GameObject enemy = Instantiate(currentWave.enemyPrefab, currentWave.spawnPosition, currentWave.enemyPrefab.transform.rotation);
+				enemy.GetComponent<Enemy>().EnemySpawner = this;
+				spawnedEnemies.Add(enemy);
+				yield return new WaitForSeconds(waitTimeBetweenEnemySpawns);
+			}
 		}
-	}
 
-	public int MaxWavesCount
-	{
-		get
+		public int WavesCount
 		{
-			return maxWaveCount;
+			get
+			{
+				return wavesCount;
+			}
 		}
-	}
 
-	public GameObject[] SpawnedEnemies
-	{
-		get
+		public int MaxWavesCount
 		{
-			return spawnedEnemies;
+			get
+			{
+				return maxWaveCount;
+			}
+		}
+
+		public List<GameObject> SpawnedEnemies
+		{
+			get
+			{
+				return spawnedEnemies;
+			}
 		}
 	}
 }
