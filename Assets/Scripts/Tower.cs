@@ -6,51 +6,58 @@ namespace TowerGame
 {
     public class Tower : MonoBehaviour 
     {
+        // Basic tower parameters
         public int range;
         public int shootInterval;
         public int damage;
 
+        // Link to main manager
+        private GameManager gameManager;
+
+        // GameObject is used to detect enemies (are there in a specified range)
         public Transform detectCircle;
+
+        // Enemies info
         private GameObject currentTarget;
         private List<GameObject> spawnedEnemies;
 
         public GameObject bulletPrefab;
-        private GameManager gameManager;
-        public Transform head, body;
 
-        void Awake()
+        // The gun of the tower
+        public Transform head;
+
+        private void Awake()
         {
+            // Set range, from what tower will detect enemies
             detectCircle.localScale = new Vector3 (range, detectCircle.localScale.y, range);
             spawnedEnemies = new List<GameObject>();
         }
 
-        void Start()
+        private void Start()
         {
             gameManager = GameObject.FindObjectOfType<GameManager> ();
         }
 
-        void Update()
+        private void Update()
         {
             float detectRange = detectCircle.localScale.x;
             if (currentTarget == null)
                 SearchTarget ();
             if (currentTarget != null) 
             {
-                //Vector3 projectionOnGround = new Vector3 (currentTarget.transform.position.x, transform.position.y, currentTarget.transform.position.z);
-                // if (Vector3.Distance (transform.position, projectionOnGround) > detectRange) 
-                // {
-                //         currentTarget = null;
-                //         return;
-                // }
-                if(head != null & body != null)
+                // If target moves over the detect circle, the tower should not hit one
+                Vector3 projectionOnGround = new Vector3 (currentTarget.transform.position.x, transform.position.y, currentTarget.transform.position.z);
+                if (Vector3.Distance (transform.position, projectionOnGround) > detectRange) 
                 {
-                    transform.LookAt(currentTarget.transform);
+                        currentTarget = null;
+                        return;
                 }
+                transform.LookAt(currentTarget.transform);
                 StartCoroutine(AttackWithBullet());
             }
         }
 
-        void SearchTarget()
+        private void SearchTarget()
         {
             foreach (var enemy in spawnedEnemies) 
             {
@@ -62,11 +69,7 @@ namespace TowerGame
             }
         }
 
-        public void SetEnemies(List<GameObject> enemies)
-        {
-            this.spawnedEnemies = enemies;
-        }
-
+        // Basic bullet setup and instantiation
         private IEnumerator AttackWithBullet ()
         {
             Bullet bullet;
@@ -84,6 +87,12 @@ namespace TowerGame
                 }
                 yield return new WaitForSeconds (shootInterval);
             }
+        }
+
+        // Update a list of spawned enemies
+        public void SetEnemies(List<GameObject> enemies)
+        {
+            this.spawnedEnemies = enemies;
         }
     }
 }

@@ -7,24 +7,26 @@ namespace TowerGame
 {
 	public class GameManager : MonoBehaviour
 	{
-		public enum TowerTypes {FlameTower, HouseTower, LightGunTower, RocketLauncherTower };
-
 		[Header ("Prefabs")]
 		public GameObject rocketLauncherTowerPrefab;
 		public GameObject lightGunTowerPrefab;
 		public GameObject flameTowerPrefab;
 		public GameObject houseTowerPrefab;
 
-		public Transform[] wayPoints;
-
-		public UI_Controller viewController;
-		public EnemySpawner enemySpawner;
-
-		// Tower setup
-		private Dictionary<TowerTypes, int> towerPrices;
-		private Dictionary<TowerTypes, GameObject> towers;
+		// Basic player parameters
 		private int playerMoney = 100;
 		public int playerHealth = 100;
+
+		// Links to gameObjects from scene
+		public UI_Controller viewController;
+		public EnemySpawner enemySpawner;
+		public Transform[] wayPoints;
+		public GameObject menu;
+
+		// Tower setup
+		public enum TowerTypes {FlameTower, HouseTower, LightGunTower, RocketLauncherTower };
+		private Dictionary<TowerTypes, int> towerPrices;
+		private Dictionary<TowerTypes, GameObject> towers;
 
 		private List<GameObject> spawnedTowers;
 
@@ -33,10 +35,11 @@ namespace TowerGame
 		private GameObject bulletsPoolParent;
 		public int bulletsCount = 1000;
 		public GameObject bulletPrefab;
-		public GameObject menu;
+
+		// All enemies count (from all waves)
 		private int enemiesCount;
 
-		void Awake()
+		private void Awake()
 		{
 			// Initialize towers prices
 			towerPrices = new Dictionary<TowerTypes, int>
@@ -60,20 +63,13 @@ namespace TowerGame
 			CalculateEnemiesCount();
 		}
 
-		private void CalculateEnemiesCount()
-		{
-			foreach(Wave wave in enemySpawner.waves)
-			{
-				enemiesCount += wave.enemiesCountPerWave;
-			}
-		}
-
-		void Start()
+		private void Start()
 		{
 			SetupInfoPanel();
 		}
 
-		void SetupInfoPanel()
+		// Initialize UI text info
+		private void SetupInfoPanel()
 		{
 			viewController.SetHealthText(playerHealth);
 			viewController.SetWaveCountText(enemySpawner.WavesCount);
@@ -85,13 +81,13 @@ namespace TowerGame
 			viewController.SetRocketLauncherTowerPriceText(towerPrices[TowerTypes.RocketLauncherTower]);
 		}
 
-		void Update()
+		private void Update()
 		{
 			SetEnemiesForEachTower(enemySpawner.SpawnedEnemies);
 			CheckGameOver();
 		}
 
-		 public void BuyTower(string tower)
+		public void BuyTower(string tower)
 		 {
 			 TowerTypes towerType = (TowerTypes) Enum.Parse(typeof(TowerTypes), tower);
 			 int towerCost = 0;
@@ -116,18 +112,6 @@ namespace TowerGame
 			 CreateTower(towerType);
 		 }
 
-		 public void AddMoney(int amount)
-		 {
-			 playerMoney += amount;
-			 viewController.SetPlayerCoinsText(playerMoney);
-		 }
-
-		 public void DecreaseMoney(int amount)
-		 {
-			 playerMoney -= amount;
-			 viewController.SetPlayerCoinsText(playerMoney);
-		 }
-
 		 private void CreateTower(TowerTypes towerType)
 		 {
 			 Transform towerSlotTransform = TowerSlot.currentSlot.transform;
@@ -145,12 +129,26 @@ namespace TowerGame
 			 spawnedTowers.Add(tower);
 		 }
 
+		// Damage player health
 		 public void Damage(int damage)
 		 {
 			 playerHealth -= damage;
 			 viewController.SetHealthText(playerHealth);
 		 }
 
+		 public void AddMoney(int amount)
+		 {
+			 playerMoney += amount;
+			 viewController.SetPlayerCoinsText(playerMoney);
+		 }
+
+		 public void DecreaseMoney(int amount)
+		 {
+			 playerMoney -= amount;
+			 viewController.SetPlayerCoinsText(playerMoney);
+		 }
+
+		// Update enemies list for each tower
 		 private void SetEnemiesForEachTower(List<GameObject> enemies)
 		 {
 			 foreach (GameObject tower in spawnedTowers)
@@ -159,6 +157,7 @@ namespace TowerGame
 			 }
 		 }
 
+		// Creates a list of bullets
 		private void CreateBulletsPool ()
 		{
 			bulletsPool = new Dictionary<int,Bullet> ();
@@ -177,6 +176,7 @@ namespace TowerGame
 			SceneManager.LoadScene ("Menu");
 		}
 
+		// Logic to detect is game over, or user's still playing
 		private bool IsWin
 		{
 			get
@@ -196,7 +196,6 @@ namespace TowerGame
 		{
 			if(IsWin || IsLost)	
 			{
-				Time.timeScale = 0;
 				menu.SetActive(true);
 				if(IsWin)
 				{
@@ -207,6 +206,14 @@ namespace TowerGame
 					viewController.SetLoseText();
 				}
 			}	
+		}
+
+		private void CalculateEnemiesCount()
+		{
+			foreach(Wave wave in enemySpawner.waves)
+			{
+				enemiesCount += wave.enemiesCountPerWave;
+			}
 		}
 	}
 }

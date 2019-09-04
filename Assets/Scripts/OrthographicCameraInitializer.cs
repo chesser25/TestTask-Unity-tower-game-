@@ -13,6 +13,7 @@ namespace TowerGame
             if (!mainCamera)
                 throw  new Exception("Add main camera");
             
+            // Calculate correct orthographicSize for different device resolutions
             mainCamera.orthographicSize = coefficient * Screen.height / Screen.width * 0.5f;
         }
     }

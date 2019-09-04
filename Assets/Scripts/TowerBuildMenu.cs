@@ -2,12 +2,13 @@
 
 namespace TowerGame
 {
+	// Menu is shown, when user tries to buy a new tower
 	public class TowerBuildMenu : MonoBehaviour 
 	{
 		private GameManager gameManager; 
 		private bool isOpened;
 
-		void Start()
+		private void Start()
 		{
 			gameManager = GameObject.FindObjectOfType<GameManager> ();
 			isOpened = false;
@@ -18,10 +19,6 @@ namespace TowerGame
 			get
 			{
 				return isOpened;
-			}
-			private set
-			{
-				isOpened = value;
 			}
 		}
 
@@ -37,6 +34,7 @@ namespace TowerGame
 
 		public void BuyTower()
 		{
+			// Find out, what type of tower, user wants, by button tag
 			string towerType = UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject.tag;
 			gameManager.BuyTower(towerType);
 		}
