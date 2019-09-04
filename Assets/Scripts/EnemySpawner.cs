@@ -22,12 +22,10 @@ namespace TowerGame
 
 		private void Awake()
 		{
-			destroyedEnemiesCount = 0;
-			wavesCount = 1;
 			maxWaveCount = waves.Length;
 			spawnedEnemies = new List<GameObject>();
 		}
-		private void Start()
+		private IEnumerator Start()
 		{
 			// Instantiate enemies from each wave (each wave has own duration, so <<waitTimeBetweenEnemySpawns>> calculates spawn interval)
 			for(int i = 0; i < waves.Length; i++)
@@ -37,6 +35,7 @@ namespace TowerGame
 				waitTimeBetweenEnemySpawns = (int) (currentWave.waveDuration / currentWave.enemiesCountPerWave);
 				createEnemiesCoroutine = CreateEnemies(currentWave);
 				StartCoroutine(createEnemiesCoroutine);
+				yield return new WaitForSeconds(10f);
 			}
 		}
 
