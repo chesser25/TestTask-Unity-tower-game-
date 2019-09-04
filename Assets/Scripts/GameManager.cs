@@ -199,11 +199,11 @@ namespace TowerGame
 				menu.SetActive(true);
 				if(IsWin)
 				{
-					viewController.SetWinText(playerMoney);
+					viewController.SetGameResultText("You won!!!");
 				}
 				else
 				{
-					viewController.SetLoseText();
+					viewController.SetGameResultText("You lose((");
 				}
 			}	
 		}

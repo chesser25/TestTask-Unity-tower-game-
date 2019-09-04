@@ -56,14 +56,9 @@ namespace TowerGame
 			rocketLauncherTowerCost.text = price.ToString();
 		}
 
-		public void SetWinText(int score)
+		public void SetGameResultText(string result)
 		{
-			gameResultText.text = "You won! Your score: " + score;
-		}
-
-		public void SetLoseText()
-		{
-			gameResultText.text = "You lose!";
+			gameResultText.text = result;
 		}
 	}
 }
