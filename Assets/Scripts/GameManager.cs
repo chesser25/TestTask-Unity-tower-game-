@@ -1,19 +1,13 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
-using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 namespace TowerGame
 {
 	public class GameManager : MonoBehaviour
 	{
 		public enum TowerTypes {FlameTower, HouseTower, LightGunTower, RocketLauncherTower };
-
-		[Header ("Camera boundaries")]
-			public float X_Min;
-			public float X_Max;
-			public float Z_Min;
-			public float Z_Max;
 
 		[Header ("Prefabs")]
 		public GameObject rocketLauncherTowerPrefab;
@@ -23,17 +17,24 @@ namespace TowerGame
 
 		public Transform[] wayPoints;
 
-		private EventSystem eventSystem;
-		private UI_Controller viewController;
-		private EnemySpawner enemySpawner;
+		public UI_Controller viewController;
+		public EnemySpawner enemySpawner;
 
-		// Variables
+		// Tower setup
 		private Dictionary<TowerTypes, int> towerPrices;
 		private Dictionary<TowerTypes, GameObject> towers;
 		private int playerMoney = 100;
-		private int playerHealth = 100;
+		public int playerHealth = 100;
 
 		private List<GameObject> spawnedTowers;
+
+		// Bullets setup
+		[HideInInspector] public Dictionary<int,Bullet> bulletsPool;
+		private GameObject bulletsPoolParent;
+		public int bulletsCount = 1000;
+		public GameObject bulletPrefab;
+		public GameObject menu;
+		private int enemiesCount;
 
 		void Awake()
 		{
@@ -55,13 +56,20 @@ namespace TowerGame
 				{ TowerTypes.RocketLauncherTower, rocketLauncherTowerPrefab }
 			};
 			spawnedTowers = new List<GameObject>();
+			CreateBulletsPool();
+			CalculateEnemiesCount();
+		}
+
+		private void CalculateEnemiesCount()
+		{
+			foreach(Wave wave in enemySpawner.waves)
+			{
+				enemiesCount += wave.enemiesCountPerWave;
+			}
 		}
 
 		void Start()
 		{
-			viewController = GameObject.FindGameObjectWithTag("UI").GetComponent<UI_Controller>();
-			eventSystem = viewController.eventSystem;
-			enemySpawner = GameObject.FindGameObjectWithTag("EnemySpawner").GetComponent<EnemySpawner>();
 			SetupInfoPanel();
 		}
 
@@ -79,22 +87,8 @@ namespace TowerGame
 
 		void Update()
 		{
-			DoNavigation ();
 			SetEnemiesForEachTower(enemySpawner.SpawnedEnemies);
-		}
-
-		void DoNavigation ()
-		{
-			if (eventSystem.IsPointerOverGameObject ())
-				return;
-
-			if (Input.GetKey ("mouse 0"))
-				Camera.main.transform.position += new Vector3 (-Input.GetAxis ("Mouse X"), 0, -Input.GetAxis ("Mouse Y"));
-
-			Camera.main.transform.position = new Vector3 (
-				Mathf.Clamp (Camera.main.transform.position.x, X_Min, X_Max),
-				Camera.main.transform.position.y,
- 				Mathf.Clamp (Camera.main.transform.position.z, Z_Min, Z_Max)); 
+			CheckGameOver();
 		}
 
 		 public void BuyTower(string tower)
@@ -122,13 +116,13 @@ namespace TowerGame
 			 CreateTower(towerType);
 		 }
 
-		 void AddMoney(int amount)
+		 public void AddMoney(int amount)
 		 {
 			 playerMoney += amount;
 			 viewController.SetPlayerCoinsText(playerMoney);
 		 }
 
-		 void DecreaseMoney(int amount)
+		 public void DecreaseMoney(int amount)
 		 {
 			 playerMoney -= amount;
 			 viewController.SetPlayerCoinsText(playerMoney);
@@ -136,7 +130,16 @@ namespace TowerGame
 
 		 private void CreateTower(TowerTypes towerType)
 		 {
-			 Vector3 slotPosition = TowerSlot.currentSlot.transform.position;
+			 Transform towerSlotTransform = TowerSlot.currentSlot.transform;
+			 Vector3 slotPosition = towerSlotTransform.position;
+			 foreach (Transform child in towerSlotTransform)
+			 {
+				 if(child.name.Contains("Clone"))
+				 {
+					 spawnedTowers.Remove(child.gameObject);
+					 Destroy(child.gameObject);
+				 }
+			 }
 			 GameObject tower = Instantiate(towers[towerType], new Vector3 (slotPosition.x, slotPosition.y + TowerSlot.currentSlot.GetComponent<TowerSlot>().SlotHeight, slotPosition.z ), towers[towerType].transform.rotation);
 			 tower.transform.SetParent(TowerSlot.currentSlot.transform);
 			 spawnedTowers.Add(tower);
@@ -148,11 +151,6 @@ namespace TowerGame
 			 viewController.SetHealthText(playerHealth);
 		 }
 
-		 public bool IsTowerPurchasePossible(int towerPrice)
-		 {
-			 return playerMoney >= towerPrice;
-		 }
-
 		 private void SetEnemiesForEachTower(List<GameObject> enemies)
 		 {
 			 foreach (GameObject tower in spawnedTowers)
@@ -160,5 +158,55 @@ namespace TowerGame
 				 tower.GetComponent<Tower>().SetEnemies(enemies);
 			 }
 		 }
+
+		private void CreateBulletsPool ()
+		{
+			bulletsPool = new Dictionary<int,Bullet> ();
+			bulletsPoolParent = new GameObject ("BulletsPool");
+
+			for (int i = 0; i < bulletsCount; i++) {
+				GameObject newBullet = Instantiate (bulletPrefab);
+				bulletsPool [i] = newBullet.GetComponent<Bullet> ();
+				bulletsPool [i].gameObject.SetActive (false);	
+				bulletsPool [i].transform.parent = bulletsPoolParent.transform;
+			}
+		}
+
+		public void BackToMenu()
+		{
+			SceneManager.LoadScene ("Menu");
+		}
+
+		private bool IsWin
+		{
+			get
+			{
+				return playerHealth > 0 && enemySpawner.destroyedEnemiesCount == enemiesCount;
+			}
+		}
+
+		private bool IsLost
+		{
+			get
+			{
+				return playerHealth <= 0;
+			}
+		}
+		private void CheckGameOver() 
+		{
+			if(IsWin || IsLost)	
+			{
+				Time.timeScale = 0;
+				menu.SetActive(true);
+				if(IsWin)
+				{
+					viewController.SetWinText(playerMoney);
+				}
+				else
+				{
+					viewController.SetLoseText();
+				}
+			}	
+		}
 	}
 }

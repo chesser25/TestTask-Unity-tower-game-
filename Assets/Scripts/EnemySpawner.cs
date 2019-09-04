@@ -12,9 +12,11 @@ namespace TowerGame
 		public Wave[] waves;
 		private IEnumerator coroutine;
 		private List<GameObject> spawnedEnemies;
+		[HideInInspector]public int destroyedEnemiesCount; 
 
 		void Awake()
 		{
+			destroyedEnemiesCount = 0;
 			wavesCount = 1;
 			maxWaveCount = waves.Length;
 			spawnedEnemies = new List<GameObject>();

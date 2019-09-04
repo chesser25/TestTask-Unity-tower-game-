@@ -14,7 +14,7 @@ namespace TowerGame
 		public Text flameTowerCost;
 		public Text lightGunTowerCost;
 		public Text rocketLauncherTowerCost;
-		public UnityEngine.EventSystems.EventSystem eventSystem;
+		public Text gameResultText;
 
 		public void SetHealthText(int playerHealth)
 		{
@@ -54,6 +54,16 @@ namespace TowerGame
 		public void SetRocketLauncherTowerPriceText(int price)
 		{
 			rocketLauncherTowerCost.text = price.ToString();
+		}
+
+		public void SetWinText(int score)
+		{
+			gameResultText.text = "You won! Your score: " + score;
+		}
+
+		public void SetLoseText()
+		{
+			gameResultText.text = "You lose!";
 		}
 	}
 }

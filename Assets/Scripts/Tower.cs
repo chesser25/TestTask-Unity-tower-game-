@@ -2,100 +2,88 @@
 using System.Collections.Generic;
 using System.Collections;
 
-public class Tower : MonoBehaviour 
+namespace TowerGame
 {
-	public int range;
-    public int shootInterval;
-    public int damage;
-
-    public Transform detectCircle;
-    private GameObject currentTarget;
-    private List<GameObject> spawnedEnemies;
-
-    public GameObject bulletPrefab;
-
-    void Awake()
+    public class Tower : MonoBehaviour 
     {
-        detectCircle.localScale = new Vector3 (range, detectCircle.localScale.y, range);
-        spawnedEnemies = new List<GameObject>();
-    }
+        public int range;
+        public int shootInterval;
+        public int damage;
 
-    void OnMouseDown ()
-    {
-        detectCircle.gameObject.SetActive (true);
-    }
+        public Transform detectCircle;
+        private GameObject currentTarget;
+        private List<GameObject> spawnedEnemies;
 
-    void OnMouseUp()
-    {
-        detectCircle.gameObject.SetActive (false);
-    }
+        public GameObject bulletPrefab;
+        private GameManager gameManager;
+        public Transform head, body;
 
-    void Update()
-    {
-        float detectRange = detectCircle.localScale.x / 2;
-        if (currentTarget == null)
-			SearchTarget ();
-        if (currentTarget != null) 
+        void Awake()
         {
-            Vector3 projectionOnGround = new Vector3 (currentTarget.transform.position.x, transform.position.y, currentTarget.transform.position.z);
-            if (Vector3.Distance (transform.position, projectionOnGround) > detectRange) 
-            {
-					currentTarget = null;
-					return;
-			}
-            GameObject bullet = Instantiate(bulletPrefab, transform.position, transform.rotation);
-            bullet.transform.position += transform.forward * Time.deltaTime;
+            detectCircle.localScale = new Vector3 (range, detectCircle.localScale.y, range);
+            spawnedEnemies = new List<GameObject>();
         }
-    }
 
-    void SearchTarget()
-    {
-        foreach (var enemy in spawnedEnemies) 
+        void Start()
         {
-            Vector3 projectionOnGround = new Vector3 (enemy.transform.position.x, transform.position.y, enemy.transform.position.z);
-            if (Vector3.Distance (transform.position, projectionOnGround) < detectCircle.localScale.x / 2)
+            gameManager = GameObject.FindObjectOfType<GameManager> ();
+        }
+
+        void Update()
+        {
+            float detectRange = detectCircle.localScale.x;
+            if (currentTarget == null)
+                SearchTarget ();
+            if (currentTarget != null) 
             {
-                currentTarget = enemy;
+                //Vector3 projectionOnGround = new Vector3 (currentTarget.transform.position.x, transform.position.y, currentTarget.transform.position.z);
+                // if (Vector3.Distance (transform.position, projectionOnGround) > detectRange) 
+                // {
+                //         currentTarget = null;
+                //         return;
+                // }
+                if(head != null & body != null)
+                {
+                    transform.LookAt(currentTarget.transform);
+                }
+                StartCoroutine(AttackWithBullet());
             }
         }
-    }
 
-    public void SetEnemies(List<GameObject> enemies)
-    {
-        this.spawnedEnemies = enemies;
-    }
-
-    IEnumerator ShootRocketLauncher ()
-    {
-        GameObject temproc;
-
-        for (int i = 0; i < gameManager.RocketsPool.Count; i++)
-            if (!gameManager.RocketsPool [i].gameObject.activeSelf) {
-                _temproc = gameManager.RocketsPool [i];
-                _temproc.Damage = Damage [Level];
-                _temproc.Target = CurrentTarget;
-                _temproc.gameObject.SetActive (true);
-                _temproc.transform.position = GunPoint1.position;
-                _temproc.transform.rotation = GunPoint1.rotation;
-                gameManager.RocketLaunchSound.Play ();
-                Fire1.Emit ();
-                break;
+        void SearchTarget()
+        {
+            foreach (var enemy in spawnedEnemies) 
+            {
+                Vector3 projectionOnGround = new Vector3 (enemy.transform.position.x, transform.position.y, enemy.transform.position.z);
+                if (Vector3.Distance (transform.position, projectionOnGround) < detectCircle.localScale.x)
+                {
+                    currentTarget = enemy;
+                }
             }
+        }
 
-        yield return new WaitForSeconds (0.3f);
+        public void SetEnemies(List<GameObject> enemies)
+        {
+            this.spawnedEnemies = enemies;
+        }
 
-        for (int i = 0; i < gameManager.RocketsPool.Count; i++)
-            if (!gameManager.RocketsPool [i].gameObject.activeSelf) {
-                _temproc = gameManager.RocketsPool [i];
-                _temproc.Damage = Damage [Level];
-                _temproc.Target = CurrentTarget;
-                _temproc.gameObject.SetActive (true);
-                _temproc.transform.position = GunPoint2.position;
-                _temproc.transform.rotation = GunPoint2.rotation;
-                gameManager.RocketLaunchSound.Play ();
-                Fire2.Emit ();
-                break;
+        private IEnumerator AttackWithBullet ()
+        {
+            Bullet bullet;
+            for (int i = 0; i < gameManager.bulletsPool.Count; i++)
+            {
+                if (!gameManager.bulletsPool [i].gameObject.activeSelf) 
+                {
+                     bullet = gameManager.bulletsPool [i];
+                     bullet.target = currentTarget;
+                     bullet.damage = damage;
+                     bullet.gameObject.SetActive (true);
+                     bullet.transform.position = new Vector3(head.transform.position.x, head.transform.position.y, head.transform.position.z);
+                     bullet.transform.rotation = head.transform.rotation;
+                    break;
+                }
+                yield return new WaitForSeconds (shootInterval);
             }
-
+        }
     }
 }

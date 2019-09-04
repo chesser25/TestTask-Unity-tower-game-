@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace TowerGame
 {
@@ -9,6 +7,7 @@ namespace TowerGame
 		public int health;
 		public int speed;
 		public int damage;
+		public int money;
 
 		private GameManager gameManager;
 		private Transform currentWaypoint;
@@ -16,16 +15,19 @@ namespace TowerGame
 		private int wayPointIndex;
 
 		private EnemySpawner enemySpawner;
+		public TextMesh enemyHealth;
 
-		void Awake()
-		{
-			wayPointIndex = 1;
-		}
 		void Start()
 		{
 			gameManager = GameObject.FindObjectOfType<GameManager> ();
 			wayPoints = gameManager.wayPoints;
 			currentWaypoint = wayPoints [wayPointIndex];
+			SetHealthText();
+		}
+
+		void SetHealthText()
+		{
+			enemyHealth.text = health.ToString();
 		}
 
 		private void Move() 
@@ -42,14 +44,13 @@ namespace TowerGame
 				}
 				else
 				{
-					Die();
+					gameManager.playerHealth = 0;
 				}
 			}
 		}
 
-		private void OnCollisionEnter(Collision other)
+		private void OnTriggerEnter(Collider other)
 		{
-			Debug.Log(other.gameObject.name);
 			Tower tower = other.gameObject.GetComponent<Tower>();
 			if (tower != null)
 			{
@@ -59,6 +60,7 @@ namespace TowerGame
 
 		void Update() 
 		{
+			Debug.Log("here");
 			Move();
 		}
 
@@ -83,6 +85,18 @@ namespace TowerGame
 			set
 			{
 				enemySpawner = value;
+			}
+		}
+
+		void GetDamage (int damage)
+		{
+			health -= damage;
+			SetHealthText();
+			if (health <= 0)
+			{
+				gameManager.AddMoney(money);
+				enemySpawner.destroyedEnemiesCount++;
+				Die ();
 			}
 		}
 	}
